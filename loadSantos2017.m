@@ -1,49 +1,45 @@
 function Measurements = loadHuawei2020_Motion()
 %LOADHUAWEI2020_MOTION loads pre-computed angles of ankle, knee, and hip
 
-Data_path = "Data/Huawei2020/Processed_Data"
+Data_path = "Santos_original\"
+Info_path = "PDSinfo.txt"
 
 %% Load subject data
+Measurements = readtable(Info_path);
+Measurements.bool_read = zeros(size(Measurements,1), 1);
+Measurements.bool_transform = zeros(size(Measurements,1), 1);
 
-
-%% Create table with all measurements
-% Each measurement has its own row with all information regarding this
-% measurement.
-% One participant could contribute multiple valid trials if desired.
-% Each measurement row stores
-%     - Table T with time series measurements
-%     - Subject information
-%     - Values that are constant during the trial, such as distance between origins of force plates
-
-Measurements = table();
+Measurements.bool_read(Measurements.Subject == 2 & Measurements.Vision == "Open",:) = 1;
+Measurements.bool_transform(Measurements.Subject == 2 & Measurements.Vision == "Open",:) = 1;
 
 %% Loop through all files in the folder and fill Measurements table
-% Get list of all files in the desired data folder (subfolders are not
-%  used)
-files = dir(Data_path +  ("/Subj*/Motion*.txt"));
-
-for file = files'
-    out = table(); %initialize output structure
-    out.file = file;
-
-    % Get measurement information from file name
-    name_split = string(split(file.name, ".")); %remove file extension
-    subjectName = file.folder(end-5:end); %eg. Subj03
-    fileName = char(name_split(1)); 
+for i = 1:size(Measurements,1)
+    if Measurements.bool_read(i) == 1
+        % Precomputed angles
+        try 
+            Measurements.ang(i) = {readtable(Data_path + Measurements.Trial(i) + 'ang.txt')};
+        catch
+            warning("Table " + Measurements.Trial(i) + " not found")
+        end
     
-    % Store subject and trial names
-    out.subjectName = subjectName;
-    out.trialName = fileName(end-3:end);
+        % Ground reaction forces
+        try 
+            Measurements.grf(i) = readtable(Data_path + Measurements.Trial(i) + 'grf.txt');
+        catch
+            warning("Table " + Measurements.Trial(i) + " not found")
+        end
     
-    % Read data as table
-    out.T_motion = {readtable(file.folder + "\" + fileName)};
-    out.T_mocap = {readtable(file.folder + "\" + "Mocap" + out.trialName)};
-
-    out.Properties.RowNames = string(out.subjectName) + string(out.trialName); %set row name
-
-    % Store output struct to Measurements table
-    Measurements = [Measurements;out];
+        % Motion capture markers
+        try 
+            Measurements.mkr(i) = readtable(Data_path + Measurements.Trial(i) + 'mkr.txt');
+        catch
+            warning("Table " + Measurements.Trial(i) + " not found")
+        end
+    end
 end
+
+
+
 
 
 
