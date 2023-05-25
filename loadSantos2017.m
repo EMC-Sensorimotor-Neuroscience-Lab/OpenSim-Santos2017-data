@@ -2,6 +2,7 @@
 %LOADHUAWEI2020_MOTION loads pre-computed angles of ankle, knee, and hip
 
 Data_path = "Santos_original\"
+Output_path = "Santos_transformed\"
 Info_path = "PDSinfo.txt"
 
 %% Load subject data
@@ -55,9 +56,9 @@ for i = 1:size(Measurements,1)
             markerRajagopal = string(mkr_names{j,1});
     
             if (markerRajagopal ~= "") && (markerSantos ~= "")
-                X = mkr_transformed.(markerSantos + "_X");
+                X = -mkr_transformed.(markerSantos + "_X");
                 Y = mkr_transformed.(markerSantos + "_Y");
-                Z = mkr_transformed.(markerSantos + "_Z");
+                Z = -mkr_transformed.(markerSantos + "_Z");
     
                 T_marker.(markerRajagopal) = 1000*[-X,Y,-Z];
             end
@@ -66,6 +67,53 @@ for i = 1:size(Measurements,1)
     end
 end
 
+%% Save data to trc
+for i = 1:size(Measurements, 1)  
+    if Measurements.bool_transform(i) == 1
+        filename = [Measurements.Trial{i} + "mkr_Rajagopal.trc"];
+        measurement = Measurements(i,:);
+
+        T_marker = measurement.mkr_Rajagopal{1};
+        width = 2 + 3*(size(T_marker,2)-2);
+        
+        autoheader1 = ["PathFileType" "4" "(X/Y/Z)" "filename.trc"];
+        autoheader2 = [
+            "DataRate" 100
+            "CameraRate" 100
+            "NumFrames" size(T_marker,1)
+            "NumMarkers" size(T_marker,2)-2
+            "Units" "mm"
+            "OrigDataRate" 100
+            "OrigDataStartFrame" 1
+            "OrigNumFrames" size(T_marker,1)
+            ]';
+        
+        mainlabels = string(T_marker.Properties.VariableNames);
+        mainlabelsWithWhitespace = mainlabels(1:2);
+        for i = 3:size(mainlabels,2)
+            mainlabelsWithWhitespace = [mainlabelsWithWhitespace, mainlabels(i), nan, nan];
+        %     mainlabelsWithWhitespace = [mainlabelsWithWhitespace, mainlabels(i)]
+        end
+        
+        sublabelmatrix = ["X","Y","Z"]' + string(1:(size(T_marker,2)-2));
+        sublabels = [nan, nan, sublabelmatrix(:)'];
+        emptyrow = nan(1,size(sublabels,2));
+        
+        out = [
+            autoheader1, nan(size(autoheader1,1), (width - size(autoheader1,2)));
+            autoheader2, nan(size(autoheader2,1), (width - size(autoheader2,2)));
+            mainlabelsWithWhitespace, nan(size(mainlabelsWithWhitespace,1), (width - size(mainlabelsWithWhitespace,2)));
+            sublabels
+            emptyrow
+            T_marker.Variables
+            ];
+        
+        emptycolumn = nan(size(out,1),1);
+        out = [out, emptycolumn];
+        
+        writematrix(out, Output_path + filename, 'Delimiter', 'tab', 'FileType','text')
+    end
+end
 
 
 
