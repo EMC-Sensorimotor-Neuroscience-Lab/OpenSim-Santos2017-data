@@ -1,5 +1,5 @@
 # OpenSim-Santos2017-data
-Converting Santos2017 data to OpenSim for analysis.
+The code from this repository is used to transform the data from the dos Santos dataset to trc files that can be used in OpenSim.
 
 The file mkr_names is used to convert the marker names from the Santos convention to any convention you prefer, for example the markers in the Rajagopal model. Note that not all markers from the Santos publication are present in the model. You can add these yourself in OpenSim and save the new marker set.
 
