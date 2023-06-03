@@ -13,6 +13,13 @@ When performing static optimization, you must add reserve actuators. The current
 
 See [documentation](https://simtk-confluence.stanford.edu:8443/display/OpenSim/Working+with+Static+Optimization) for more information.
 
+## Metabolic costs
+The example by [Dembia and Uchida](https://simtk-confluence.stanford.edu:8443/display/OpenSim/Simulation-Based+Design+to+Reduce+Metabolic+Cost) is massively helpful to understand how to calculate metabolic costs in OpenSim. The current model already has probes for all muscles, which can be read by running the analyze tool. Their tutorial explains how to run that.  The way the probes calculate metabolic cost can be found in their [documentation page](https://simtk.org/api_docs/opensim/api_docs/classOpenSim_1_1Umberger2010MuscleMetabolicsProbe.html) if you scroll down. 
+
+It is worth noting that OpenSim muscles are much stronger than what you should expect from a real muscle. OpenSim does not store muscle masses, so the mass will be approximated as described at the `use_provided_muscle_mass ` section. This description uses the maximum force, and as a result the predictions can be excessively large. 
+
+You can either add muscle masses to get more accurate values, or choose a surrogate measure, such as the time integral of the force ([Rebula and Kuo (2015)](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0117384).
+
 ## Force plate data
 I am currently working on the force plate data. This paragraph will be updated once they have been converted.
 
