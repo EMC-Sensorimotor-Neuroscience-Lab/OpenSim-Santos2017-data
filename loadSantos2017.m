@@ -10,8 +10,8 @@ Measurements = readtable(Info_path);
 Measurements.bool_read = zeros(size(Measurements,1), 1);
 Measurements.bool_transform = zeros(size(Measurements,1), 1);
 
-Measurements.bool_read(Measurements.Vision == "Open",:) = 1;
-Measurements.bool_transform(Measurements.Vision == "Open",:) = 1;
+Measurements.bool_read(Measurements.Vision == "Open" & Measurements.Subject == 1,:) = 1;
+Measurements.bool_transform(Measurements.Vision == "Open" & Measurements.Subject == 1,:) = 1;
 
 %% Loop through all files in the folder and fill Measurements table
 for i = 1:size(Measurements,1)
@@ -41,9 +41,11 @@ end
 
 %% Marker names
 mkr_names = readtable("mkr_names.xlsx", 'VariableNamingRule', 'preserve');
+grf_names = readtable("grf_names.xlsx", 'VariableNamingRule', 'preserve');
 
 %% Save renamed marker data to the selected measurements
 Measurements.mkr_Rajagopal = cell(size(Measurements.mkr));
+Measurements.grf_Rajagopal = cell(size(Measurements.grf));
 for i = 1:size(Measurements,1)
     if Measurements.bool_read(i) == 1 && Measurements.bool_transform(i) == 1
         T_marker = table();
@@ -55,6 +57,7 @@ for i = 1:size(Measurements,1)
             markerSantos = string(mkr_names{j,2});
             markerRajagopal = string(mkr_names{j,1});
     
+            % Store marker data and transform axes to enforce X forward
             if (markerRajagopal ~= "") && (markerSantos ~= "")
                 X = -mkr_transformed.(markerSantos + "_X");
                 Y = mkr_transformed.(markerSantos + "_Y");
@@ -63,11 +66,31 @@ for i = 1:size(Measurements,1)
                 T_marker.(markerRajagopal) = 1000*[-X,Y,-Z];
             end
         end
+
+        T_grf = table();
+        T_grf.time = Measurements.mkr{i}.Time;
+        T_grf.time = linspace(min(T_grf.time), max(T_grf.time), length(T_grf.time))'; %some measurements contain skipped measuremnts, normalize time here
+        
+        for j = 1:size(grf_names,1)
+            grf_transformed = Measurements.grf{i};
+            grfSantos = string(grf_names{j,2});
+            grfRajagopal = string(grf_names{j,1});
+    
+            % Store forces and transform axes to enforce X forward
+            if (grfRajagopal ~= "") && (grfSantos ~= "")
+                if contains(grfSantos, "_X") ||  contains(grfSantos, "_Z")
+                    T_grf.(grfRajagopal) = -grf_transformed.(grfSantos);
+                else     
+                    T_grf.(grfRajagopal) = grf_transformed.(grfSantos);
+                end
+            end
+        end
         Measurements.mkr_Rajagopal{i} = T_marker;
+        Measurements.grf_Rajagopal{i} = T_grf;
     end
 end
 
-%% Save data to trc
+%% Save kinematic data to trc
 for i = 1:size(Measurements, 1)  
     if Measurements.bool_transform(i) == 1
         filename = [Measurements.Trial{i} + "mkr_Rajagopal.trc"];
@@ -114,6 +137,40 @@ for i = 1:size(Measurements, 1)
         writematrix(out, Output_path + filename, 'Delimiter', 'tab', 'FileType','text')
     end
 end
+
+%% Save force data to mot file
+for i = 1:size(Measurements, 1)  
+    if Measurements.bool_transform(i) == 1
+        filename = [Measurements.Trial{i} + "grf_Rajagopal.mot"];
+        measurement = Measurements(i,:);
+
+        T_grf = measurement.grf_Rajagopal{1};
+        width = size(T_grf,2);
+        
+        header = [
+            filename;
+            "version=1";
+            "datarows "+string(size(T_grf,1));
+            "datacolumns " + string(size(T_grf,2));
+            "range " + string(min(T_grf.time)) + " " + string(max(T_grf.time))
+            "endheader"
+            ];
+
+        A = T_grf.Variables;
+        colNames1 = string(T_grf.Properties.VariableNames);
+        
+        emptyNextToHeader = nan(size(header,1), (size(A,2)-1));
+
+        out = [
+            header, emptyNextToHeader;
+            colNames1;
+            A
+            ];
+        
+        writematrix(out, Output_path + filename, 'Delimiter', 'tab', 'FileType','text')
+    end
+end
+
 
 
 
