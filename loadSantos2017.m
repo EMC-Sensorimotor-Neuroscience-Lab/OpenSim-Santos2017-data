@@ -44,43 +44,51 @@ mkr_names = readtable("mkr_names.xlsx", 'VariableNamingRule', 'preserve');
 grf_names = readtable("grf_names.xlsx", 'VariableNamingRule', 'preserve');
 
 %% Save renamed marker data to the selected measurements
+% Initialize columns for mkr and grf data that is transformed
 Measurements.mkr_Rajagopal = cell(size(Measurements.mkr));
 Measurements.grf_Rajagopal = cell(size(Measurements.grf));
+
 for i = 1:size(Measurements,1)
+    % If the bool_transform variable is true, convert the data to OpenSim compatible formats
     if Measurements.bool_read(i) == 1 && Measurements.bool_transform(i) == 1
+        % Get and rename ground marker coordinates to OpenSim compatible names
         T_marker = table();
         T_marker.("Frame#") = (1:size(Measurements.mkr{i},1))';
         T_marker.Time = Measurements.mkr{i}.Time;
         T_marker.Time = linspace(min(T_marker.Time), max(T_marker.Time), length(T_marker.Time))'; %some measurements contain skipped measuremnts, normalize time here
+        
+        mkr_current = Measurements.mkr{i};
         for j = 1:size(mkr_names,1)
-            mkr_transformed = Measurements.mkr{i};
             markerSantos = string(mkr_names{j,2});
             markerRajagopal = string(mkr_names{j,1});
     
             % Store marker data and transform axes to enforce X forward
             if (markerRajagopal ~= "") && (markerSantos ~= "")
-                X = mkr_transformed.(markerSantos + "_X");
-                Y = mkr_transformed.(markerSantos + "_Y");
-                Z = mkr_transformed.(markerSantos + "_Z");
+                X = mkr_current.(markerSantos + "_X");
+                Y = mkr_current.(markerSantos + "_Y");
+                Z = mkr_current.(markerSantos + "_Z");
     
                 T_marker.(markerRajagopal) = 1000*[X,Y,Z];
             end
         end
 
+        % Get and rename ground reaction forces to OpenSim compatible names
         T_grf = table();
         T_grf.time = Measurements.mkr{i}.Time;
         T_grf.time = linspace(min(T_grf.time), max(T_grf.time), length(T_grf.time))'; %some measurements contain skipped measuremnts, normalize time here
         
+        grf_current = Measurements.grf{i};
         for j = 1:size(grf_names,1)
-            grf_transformed = Measurements.grf{i};
             grfSantos = string(grf_names{j,2});
             grfRajagopal = string(grf_names{j,1});
     
             % Store forces and transform axes to enforce X forward
             if (grfRajagopal ~= "") && (grfSantos ~= "")
-                T_grf.(grfRajagopal) = grf_transformed.(grfSantos);
+                T_grf.(grfRajagopal) = grf_current.(grfSantos);
             end
         end
+
+        % Store back into measurements table
         Measurements.mkr_Rajagopal{i} = T_marker;
         Measurements.grf_Rajagopal{i} = T_grf;
     end
