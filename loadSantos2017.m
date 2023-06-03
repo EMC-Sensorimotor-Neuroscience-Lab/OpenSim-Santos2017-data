@@ -10,8 +10,8 @@ Measurements = readtable(Info_path);
 Measurements.bool_read = zeros(size(Measurements,1), 1);
 Measurements.bool_transform = zeros(size(Measurements,1), 1);
 
-Measurements.bool_read(Measurements.Subject == 2 & Measurements.Vision == "Open",:) = 1;
-Measurements.bool_transform(Measurements.Subject == 2 & Measurements.Vision == "Open",:) = 1;
+Measurements.bool_read(Measurements.Vision == "Open",:) = 1;
+Measurements.bool_transform(Measurements.Vision == "Open",:) = 1;
 
 %% Loop through all files in the folder and fill Measurements table
 for i = 1:size(Measurements,1)
@@ -90,8 +90,8 @@ for i = 1:size(Measurements, 1)
         
         mainlabels = string(T_marker.Properties.VariableNames);
         mainlabelsWithWhitespace = mainlabels(1:2);
-        for i = 3:size(mainlabels,2)
-            mainlabelsWithWhitespace = [mainlabelsWithWhitespace, mainlabels(i), nan, nan];
+        for j = 3:size(mainlabels,2)
+            mainlabelsWithWhitespace = [mainlabelsWithWhitespace, mainlabels(j), nan, nan];
         %     mainlabelsWithWhitespace = [mainlabelsWithWhitespace, mainlabels(i)]
         end
         
