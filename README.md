@@ -2,8 +2,7 @@
 The code from this repository is used to transform the data from the dos Santos dataset to trc files that can be used in OpenSim.
 
 ## Scaling and inverse kinematics
-To use kinematic data you should always scale the model accordingly. See the documentation for useful examples:
-https://simtk-confluence.stanford.edu:8443/display/OpenSim/Tutorial+3+-+Scaling%2C+Inverse+Kinematics%2C+and+Inverse+Dynamics
+To use kinematic data you should always scale the model accordingly. See the [documentation](https://simtk-confluence.stanford.edu:8443/display/OpenSim/Tutorial+3+-+Scaling%2C+Inverse+Kinematics%2C+and+Inverse+Dynamics) for useful examples.
 
 You must add the markers from the file `markers_all.xml` to the model `Rajagopal2015_probed.osim` when running any scaling or inverse kinematics, as otherwise a lot of markers will be ignored. Both are present in the folder `Models`.
 
@@ -11,6 +10,8 @@ To visualize marker trajectories after performing scaling, select the motion fro
 
 ## Static optimization
 When performing static optimization, you must add reserve actuators. The current model already has reserve actuators for each joint, but there are currently no external forces.
+
+See [documentation](https://simtk-confluence.stanford.edu:8443/display/OpenSim/Working+with+Static+Optimization) for more information.
 
 ## Force plate data
 I am currently working on the force plate data. This paragraph will be updated once they have been converted.
