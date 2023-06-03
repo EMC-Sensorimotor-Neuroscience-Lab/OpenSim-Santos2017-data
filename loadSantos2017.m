@@ -59,11 +59,11 @@ for i = 1:size(Measurements,1)
     
             % Store marker data and transform axes to enforce X forward
             if (markerRajagopal ~= "") && (markerSantos ~= "")
-                X = -mkr_transformed.(markerSantos + "_X");
+                X = mkr_transformed.(markerSantos + "_X");
                 Y = mkr_transformed.(markerSantos + "_Y");
-                Z = -mkr_transformed.(markerSantos + "_Z");
+                Z = mkr_transformed.(markerSantos + "_Z");
     
-                T_marker.(markerRajagopal) = 1000*[-X,Y,-Z];
+                T_marker.(markerRajagopal) = 1000*[X,Y,Z];
             end
         end
 
@@ -78,11 +78,7 @@ for i = 1:size(Measurements,1)
     
             % Store forces and transform axes to enforce X forward
             if (grfRajagopal ~= "") && (grfSantos ~= "")
-                if contains(grfSantos, "_X") ||  contains(grfSantos, "_Z")
-                    T_grf.(grfRajagopal) = -grf_transformed.(grfSantos);
-                else     
-                    T_grf.(grfRajagopal) = grf_transformed.(grfSantos);
-                end
+                T_grf.(grfRajagopal) = grf_transformed.(grfSantos);
             end
         end
         Measurements.mkr_Rajagopal{i} = T_marker;
