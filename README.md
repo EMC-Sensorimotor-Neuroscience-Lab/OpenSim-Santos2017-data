@@ -21,7 +21,7 @@ It is worth noting that OpenSim muscles are much stronger than what you should e
 You can either add muscle masses to get more accurate values, or choose a surrogate measure, such as the time integral of the force ([Rebula and Kuo (2015)](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0117384).
 
 ## Force plate data
-Force plate data has been added to the `.rar` file on Brightspace.
+Force plate data has been added to the `.rar` file on Brightspace. The name conventions follow the convention from the [.mot documentation page](https://simtk-confluence.stanford.edu:8443/display/OpenSim/Motion+%28.mot%29+Files), so v is for forces and p for the point of application. Apply these forces on the toes. You should probably lock the joints in the foot, or at least allow the reserve actuator to maintain equilibrium.
 
 ## Converting the Santos data to trc files (see Brightspace Project 8)
 The code `loadSantos2017` loads all files from the originial dataset and combines them with the information from `PDSinfo.txt`. The trc files for the eyes open conditions are on Brightspace so you can skip this step. The file `mkr_names` is used to convert the marker names from the Santos convention to any convention you prefer. The markers on the head have been omitted, you can add these yourself if you need them.
